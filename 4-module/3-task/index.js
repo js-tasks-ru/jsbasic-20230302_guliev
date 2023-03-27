@@ -16,7 +16,7 @@ function highlight(table) {
       item.style.cssText = 'text-decoration: line-through';
     }
 
-    if (td[td.length - 1].innerHTML !== 'Status' && td[td.length - 1].getAttribute('data-available') === null) {
+    if (td[td.length - 1].dataset.available === undefined) {
       item.hidden = true;
     }
   });
