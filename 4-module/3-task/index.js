@@ -5,11 +5,11 @@ function highlight(table) {
     const td = item.getElementsByTagName('td');
 
     if (td[td.length - 1].getAttribute('data-available')) {
-      item.className = JSON.parse(td[td.length - 1].getAttribute('data-available')) ? 'available' : 'unavailable';
+      item.classList.add(td[td.length - 1].getAttribute('data-available') === 'true' ? 'available' : 'unavailable');
     }
 
     if (td[td.length - 2].innerHTML !== 'Gender') {
-      item.className += td[td.length - 2].innerHTML === 'm' ? ' male' : ' female';
+      item.classList.add(td[td.length - 2].innerHTML === 'm' ? 'male' : 'female');
     }
 
     if (td[td.length - 3].innerHTML < 18) {
@@ -17,7 +17,7 @@ function highlight(table) {
     }
 
     if (td[td.length - 1].innerHTML !== 'Status' && td[td.length - 1].getAttribute('data-available') === null) {
-      item.setAttribute('hidden', true);
+      item.hidden = true;
     }
   });
 }
