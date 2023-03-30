@@ -3,6 +3,7 @@ function initCarousel() {
   const leftBtn = document.querySelector('.carousel__arrow_left');
   const carousel = document.querySelector('.carousel__inner');
   let num = 0;
+  leftBtn.style.display = 'none';
 
   rightBtn.addEventListener('click', () => {
     num += 1;
@@ -12,6 +13,7 @@ function initCarousel() {
       rightBtn.style.display = 'none';
       leftBtn.style.display = '';
     } 
+    console.log(num);
   });
 
   leftBtn.addEventListener('click', () => {
@@ -22,5 +24,6 @@ function initCarousel() {
       rightBtn.style.display = '';
       leftBtn.style.display = 'none';
     } 
+    console.log(num);
   })
 }
