@@ -5,6 +5,7 @@ export default class Carousel {
 
   constructor(slides) {
     this.elem = createElement(this.#carousel(slides));
+    const leftBtn = document.querySelector('carousel__arrow_right');
   }
 
   #carousel(slides) {
@@ -21,44 +22,26 @@ export default class Carousel {
       `
     )
   }
-
-  #tempateArrows(){
+  
+  #tempateArrows() {
     return (
-      `
-        <div class="carousel__arrow carousel__arrow_right">
-          <img src="/assets/images/icons/angle-icon.svg" alt="icon">
-        </div>
-        <div class="carousel__arrow carousel__arrow_left">
-          <img src="/assets/images/icons/angle-left-icon.svg" alt="icon">
-        </div>
-      `
+      `<div class="carousel__arrow carousel__arrow_right"><img src="/assets/images/icons/angle-icon.svg" alt="icon"></div><div class="carousel__arrow carousel__arrow_left"><img src="/assets/images/icons/angle-left-icon.svg" alt="icon" /></div>`
     )
   }
 
   #carouselSlide(url, price, title) {
     return (
-      `
-        <div class="carousel__slide" data-id="penang-shrimp">
-          ${this.#carouselImg(url)}
-          ${this.#carouselCaption(price, title)}
-        </div>
-      `
+      `<div class="carousel__slide" data-id="penang-shrimp">${this.#carouselImg(url)}${this.#carouselCaption(price, title)}</div>`
     );
   }
 
   #carouselImg(url) {
-    return `<img src="/assets/images/carousel/${url}" class="carousel__img" alt="slide">`
+    return `<img src="/assets/images/carousel/${url}" class="carousel__img" alt="slide" />`
   }
 
   #carouselCaption(price, title) {
     return (
-      `
-        <div class="carousel__caption">
-          <span class="carousel__price">€${price}</span>
-          <div class="carousel__title">${title}</div>
-          ${this.#carouselButton()};
-        </div>
-      `
+      `<div class="carousel__caption"><span class="carousel__price">€${price}</span><div class="carousel__title">${title}</div>${this.#carouselButton()}</div>`
     )
   }
 
@@ -66,6 +49,8 @@ export default class Carousel {
     const button = document.createElement('button');
     button.classList = 'carousel__button';
     button.type = 'button';
+
+    button.innerHTML = `<img src="/assets/images/icons/plus-icon.svg" alt="icon" />`
 
     button.addEventListener('click', () => {
       let event = new CustomEvent('product-add', {

@@ -23,45 +23,49 @@ const NamesEnum = {
 export default class UserTable {
   elem = '';
 
+  deleteItem(index) {
+    const trs = document.querySelectorAll('tr');
+    // тут хочу удалять из trs элемент под нужным индексом
+    console.log(trs);
+  }
+
+  #createDeleteButton(index){
+    const button = document.createElement('button');
+    button.innerHTML = 'X';
+    
+    button.addEventListener('click', this.deleteItem);
+
+    return button.outerHTML;
+  }
+
   constructor(rows) {
-     const table = document.createElement('table');
-     const tHead = document.createElement('thead');
-     const tBody = document.createElement('tbody');
-     const tr = document.createElement('tr');
+    const table = document.createElement('table');
 
-     Object.keys(rows[0]).forEach((item) => {
-      const th = document.createElement('th');
-      th.innerHTML = NamesEnum[item];
-      tr.appendChild(th);
-     });
+    table.innerHTML = `
+    <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Возраст</th>
+      <th>Зарплата</th>
+      <th>Город</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+       ${rows.map((row, index) => `
+          <tr>
+             <td>${row.name}</td>
+             <td>${row.age}</td>
+             <td>${row.salary}</td>
+             <td>${row.city}</td>
+             <td>
+                ${this.#createDeleteButton(index)}
+             </td> 
+          </tr>
+       `).join('')}
+    </tbody>
+    `
 
-     rows.forEach((row) => {
-        const tr = document.createElement('tr');
-
-        for(let elem in row){
-          const td = document.createElement('td');
-          td.innerHTML = row[elem];
-          tr.appendChild(td);
-        }
-
-        const td = document.createElement('td');
-        const button = document.createElement('button');
-        button.innerHTML = 'X';
-
-        button.addEventListener('click', () => {
-          tBody.removeChild(tr);
-        })
-
-        td.appendChild(button);
-        tr.appendChild(td);
-        tBody.appendChild(tr);
-     })
-
-     tHead.appendChild(tr);
-    
-     table.appendChild(tHead);
-     table.appendChild(tBody);
-    
-     this.elem = table;
+    this.elem = table;
   }
 }
