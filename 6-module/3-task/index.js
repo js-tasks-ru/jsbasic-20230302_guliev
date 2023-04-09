@@ -21,11 +21,11 @@ export default class Carousel {
 
     buttons.forEach((button) => {
       button.addEventListener('click', () => {
-        const id = button.parentNode.querySelector('.carousel__title').innerHTML;
+        const carousel = button.parentNode.parentNode;
   
         const customEvent = new CustomEvent('product-add', {
           bubbles: true, 
-          detail: id
+          detail: carousel.getAttribute('data-id')
         });
 
         console.log(customEvent);
@@ -70,6 +70,7 @@ export default class Carousel {
   }
 
   #carousel(slides) {
+    console.log(slides);
     const slide = slides.map((slide) => this.#carouselSlide(slide.image, slide.price, slide.name, slide.id))
 
     return (
