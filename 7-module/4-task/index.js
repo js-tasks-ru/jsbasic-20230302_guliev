@@ -1,109 +1,117 @@
+import createElement from '../../assets/lib/create-element.js';
+
 export default class StepSlider {
   constructor({ steps, value = 0 }) {
     this.steps = steps;
-    this.value = value;
-
+    this.segments = steps - 1;
     this.render();
-    this.renderSteps();
-
     this.addEventListeners();
+    this.setValue(value);
   }
-
   render() {
-    this.elem = document.createElement('div');
-    this.elem.classList.add('slider');
-
-    this.thumb = document.createElement('div');
-    this.thumb.classList.add('slider__thumb');
-    this.thumb.innerHTML = `
-      <span class="slider__value">${this.value}</span>
-    `;
-    this.elem.appendChild(this.thumb);
-
-    this.progress = document.createElement('div');
-    this.progress.classList.add('slider__progress');
-    this.elem.appendChild(this.progress);
-
-    this.stepsElem = document.createElement('div');
-    this.stepsElem.classList.add('slider__steps');
-    this.elem.appendChild(this.stepsElem);
+    this.elem = createElement(`
+      <div class="slider">
+        <div class="slider__thumb">
+          <span class="slider__value"></span>
+        </div>
+        <div class="slider__progress"></div>
+        <div class="slider__steps">
+          ${'<span></span>'.repeat(this.steps)}
+        </div>
+      </div>
+    `);
   }
 
-  renderSteps() {
-    for (let i = 0; i < this.steps; i++) {
-      const step = document.createElement('span');
-      step.classList.add('slider__step');
-
-      if (i === this.value) {
-        step.classList.add('slider__step-active');
-      }
-
-      this.stepsElem.appendChild(step);
-    }
-  }
-
-  addEventListeners() {
-    this.elem.addEventListener('click', this.onClick.bind(this));
-    this.thumb.addEventListener('pointerdown', this.onPointerDown.bind(this));
-  }
-
-  onClick(event) {
-    if (event.target.closest('.slider__thumb')) {
-      return;
-    }
-
-    const left = event.clientX - this.elem.getBoundingClientRect().left;
-    const leftRelative = left / this.elem.offsetWidth;
-
-    this.setValue(Math.round(leftRelative * (this.steps - 1)));
-  }
-
-  onPointerDown() {
-    this.elem.classList.add('slider_dragging');
-
-    window.addEventListener('pointermove', this.onPointerMove.bind(this));
-    window.addEventListener('pointerup', this.onPointerUp.bind(this));
-  }
-
-  onPointerMove(event) {
-    const left = event.clientX - this.elem.getBoundingClientRect().left;
-    const leftRelative = left / this.elem.offsetWidth;
-
-    this.setValue(Math.round(leftRelative * (this.steps - 1)));
-  }
-
-  onPointerUp() {
-    this.elem.classList.remove('slider_dragging');
-
-    window.removeEventListener('pointermove', this.onPointerMove);
-    window.removeEventListener('pointerup', this.onPointerUp);
+  getElem(ref) {
+    return this.elem.querySelector(`.slider__${ref}`);
   }
 
   setValue(value) {
-    if (value < 0 || value > this.steps - 1) {
-      return;
-    }
-
     this.value = value;
 
-    const offsetLeft = (this.value / (this.steps - 1)) * 100;
-    this.thumb.style.left = `${offsetLeft}%`;
-    this.progress.style.width = `${offsetLeft}%`;
+    this.getElem('thumb').style.left = `${(value / this.segments) * 100}%`;
+    this.getElem('progress').style.width = `${(value / this.segments) * 100}%`;
 
-    const steps = this.stepsElem.querySelectorAll('.slider__step');
-    steps[this.value].classList.add('slider__step-active');
+    this.getElem('value').innerHTML = value;
 
-    for (let i = 0; i < steps.length; i++) {
-      if (i !== this.value) {
-        steps[i].classList.remove('slider__step-active');
-      }
+    if (this.getElem('step-active')) {
+      this.getElem('step-active').classList.remove('slider__step-active');
     }
 
-    this.thumb.querySelector('.slider__value').textContent = this.value;
+    this.getElem('steps').children[this.value].classList.add('slider__step-active');
+  }
 
-    this.elem.dispatchEvent(new CustomEvent('slider-change', {
-      detail: this.value,
-      bubbles: true
-    }));
+  addEventListeners() {
+    this.getElem('thumb').ondragstart = () => false;
+
+    this.getElem('thumb').onpointerdown = this.onPointerDown;
+
+    this.elem.onclick = this.onClick;
+  }
+
+  onClick = event => {
+    let newLeft = (event.clientX - this.elem.getBoundingClientRect().left) / this.elem.offsetWidth;
+
+    this.setValue(Math.round(this.segments * newLeft));
+
+    this.elem.dispatchEvent(
+      new CustomEvent('slider-change', {
+        detail: this.value,
+        bubbles: true
+      })
+    );
+  }
+
+  onPointerDown = event => {
+    event.preventDefault();
+
+    this.elem.classList.add('slider_dragging');
+
+    document.addEventListener('pointermove', this.onPointerMove);
+    document.addEventListener('pointerup', this.onPointerUp);
+  }
+
+  onPointerMove = event => {
+    event.preventDefault();
+
+    let newLeft = this.calcLeftByEvent(event);
+
+    this.getElem('thumb').style.left = `${newLeft * 100}%`;
+    this.getElem('progress').style.width = `${newLeft * 100}%`;
+
+
+    this.value = Math.round(this.segments * newLeft);
+    this.getElem('value').innerHTML = this.value;
+
+    if (this.getElem('step-active')) {
+      this.getElem('step-active').classList.remove('slider__step-active');
+    }
+
+    this.getElem('steps').children[this.value].classList.add('slider__step-active');
+  };
+
+  onPointerUp = () => {
+    document.removeEventListener('pointermove', this.onPointerMove);
+    document.removeEventListener('pointerup', this.onPointerUp);
+
+    this.elem.classList.remove('slider_dragging');
+    this.getElem('thumb').style.left = `${(this.value / this.segments) * 100}%`;
+    this.getElem('progress').style.width = `${(this.value / this.segments) * 100}%`;
+
+    this.elem.dispatchEvent(
+      new CustomEvent('slider-change', {
+        detail: this.value,
+        bubbles: true
+      })
+    );
+  };
+
+  calcLeftByEvent(event) {
+    let newLeft = (event.clientX - this.elem.getBoundingClientRect().left) / this.elem.offsetWidth;
+
+    if (newLeft < 0) { newLeft = 0; }
+    if (newLeft > 1) { newLeft = 1; }
+
+    return newLeft;
   }
 }
